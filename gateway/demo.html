@@ -96,13 +96,30 @@
     <h2>实时风格清单（来自 <code>/picgo/config</code>）</h2>
     <div class="styles" id="styleChips"></div>
   </section>
+
+  <section style="grid-column:1/-1">
+    <h2>网关鉴权（仅当启动时设了 <code>PICGO_GATEWAY_KEY</code> 才需要）</h2>
+    <div class="row">
+      <div><label>Gateway Key（只存在浏览器 localStorage）</label><input id="gwKey" placeholder="留空 = 网关未启用入站鉴权" /></div>
+      <div style="display:flex;align-items:flex-end"><button id="saveKey" style="margin-bottom:1px">保存并重载</button></div>
+    </div>
+  </section>
 </main>
 
 <script>
 const $ = (id) => document.getElementById(id);
+const GW_KEY = localStorage.getItem('picgo_gw_key') || '';
+$('gwKey').value = GW_KEY;
+$('saveKey').addEventListener('click', () => {
+  const v = $('gwKey').value.trim();
+  if (v) localStorage.setItem('picgo_gw_key', v); else localStorage.removeItem('picgo_gw_key');
+  location.reload();
+});
 
-async function api(path, opts) {
-  const res = await fetch(path, opts);
+async function api(path, opts = {}) {
+  const headers = Object.assign({}, opts.headers || {});
+  if (GW_KEY) headers['Authorization'] = 'Bearer ' + GW_KEY;
+  const res = await fetch(path, Object.assign({}, opts, { headers }));
   let body;
   try { body = await res.json(); } catch { body = { raw: await res.text() }; }
   return { status: res.status, body };

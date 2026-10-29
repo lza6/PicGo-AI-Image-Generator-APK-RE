@@ -16,8 +16,9 @@ import os
 import time
 import uuid
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import HTMLResponse, JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from .picgo_client import PicGoClient, UpstreamDead, upstream_matrix
 
@@ -26,6 +27,26 @@ client = PicGoClient()
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MAX_IMAGE_BYTES = 12 * 1024 * 1024
+
+# 可选入站鉴权：设置 PICGO_GATEWAY_KEY 后，/v1/* 与 /picgo/* 必须带 Bearer 该值。
+# 未设置时不校验（仅建议在 127.0.0.1 绑定下这样跑）。
+GATEWAY_KEY = os.environ.get("PICGO_GATEWAY_KEY", "").strip()
+OPEN_PATHS = {"/", "/health", "/docs", "/openapi.json", "/upstream/matrix"}
+
+
+class GatewayAuth(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        if GATEWAY_KEY and request.url.path not in OPEN_PATHS:
+            header = request.headers.get("authorization", "")
+            if header.removeprefix("Bearer ").strip() != GATEWAY_KEY:
+                return JSONResponse(
+                    status_code=401,
+                    content={"error": {"type": "unauthorized", "message": "需要 Bearer <PICGO_GATEWAY_KEY>"}},
+                )
+        return await call_next(request)
+
+
+app.add_middleware(GatewayAuth)
 
 # 本地风格名 -> 上游 txt2img 风格（无映射即直传）
 CAPABILITIES = [

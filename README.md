@@ -22,7 +22,8 @@ scripts/
 docs/
   PROTOCOL.md         协议还原报告（端点全集 / 鉴权 / 配置 / Remote Config / 计费）
   UPSTREAM-STATUS.md  存活矩阵与冒烟证据
-  NEW-API-INTEGRATION.md  new-api 对接指南（三条路线，结论：本轮不可接）
+  NEW-API-INTEGRATION.md  对接路线速览（结论：本轮不可接）
+  HANDOFF-NEW-API.md  ★ 完整交接书：三条路线 + 验收清单 + 给对接会话的启动 prompt
 evidence/             冒烟与探测的原始 JSON + 演示页截图
 exports/              风格模板导出
 ```
@@ -36,6 +37,12 @@ python scripts/probe_upstreams.py           # 1. 先看上游还活着什么
 python scripts/smoke.py                     # 2. 单点冒烟（协议面 PASS / 生成面 upstream_dead）
 python -m uvicorn gateway.server:app --host 127.0.0.1 --port 8985
 open http://127.0.0.1:8985/                 # 3. 演示页
+```
+
+对外暴露时开启入站鉴权（`/`、`/health`、`/docs`、`/upstream/matrix` 免鉴权，其余需 `Bearer`）：
+
+```bash
+PICGO_GATEWAY_KEY=<强口令> python -m uvicorn gateway.server:app --host 0.0.0.0 --port 8985
 ```
 
 演示页会用真实请求把能力矩阵、上游存活、50 条风格清单全部拉出来；点「跑文生图」会得到真实的上游错误。
@@ -52,7 +59,8 @@ open http://127.0.0.1:8985/                 # 3. 演示页
 | `POST /api/v2.0/transfer`（img2img） | 202 `{"detail":"Error!"}` |
 | `POST /api/v1/video-generate` | 41s 恒返回同一模板 `wedding_template.mp4`（死链），与输入无关 |
 | 9 个 runpod 算力代理 | 404 ×9 |
-| 演示页（Playwright 实测） | 6 条能力行 / 14+50 风格实时加载 / 生成按钮返回真实 502 / 唯一 console error 即该 502 |
+| 网关入站鉴权 | 设 `PICGO_GATEWAY_KEY` 后：无 key 401 / 错 key 401 / 对 key 200；`/health` 与演示页免鉴权 |
+| 演示页（Playwright 实测，无鉴权 + 有鉴权两种模式） | 6 条能力行 / 14+50 风格实时加载 / 生成按钮返回真实 502 / **console error = 0** |
 
 ## 红线（本项目遵守）
 

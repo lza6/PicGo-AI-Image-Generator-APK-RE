@@ -1,0 +1,29 @@
+MIT License
+
+Copyright (c) 2026 lza6
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+--- 附加说明 / Additional notice ---
+
+本仓库仅用于自有 APK 的协议学习与互操作性研究（interoperability research）。
+仓库中不包含任何第三方凭据：Firebase Remote Config 原始响应（含第三方付费 API key）
+已通过 .gitignore 排除，文档中的标识符均已脱敏。
+`exports/styles_export.json` 中的风格 prompt 文本来自所分析应用的服务端公开配置，
+仅用于说明协议与复现能力边界，版权归原权利人所有。
