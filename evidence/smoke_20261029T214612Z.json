@@ -1,0 +1,154 @@
+{
+  "generated_at": "20261029T214612Z",
+  "checks": [
+    {
+      "check": "token(forged)",
+      "expect": "ok",
+      "ok": true,
+      "elapsed_ms": 833,
+      "result": {
+        "token_type": "bearer",
+        "claims": {
+          "unique": "4c689e02-091d-4b85-972e-dbf683c6d89b",
+          "app": "prox_app",
+          "exp": 1793310951
+        },
+        "ttl_sec": 602
+      }
+    },
+    {
+      "check": "sha256",
+      "expect": "ok",
+      "ok": true,
+      "elapsed_ms": 797,
+      "result": {
+        "content": "picgo",
+        "hash": "9f697414809030f9178167bbadaaed584c8392e3e8366a61cd1870dd590b37ea"
+      }
+    },
+    {
+      "check": "style_list.txt2img",
+      "expect": "ok",
+      "ok": true,
+      "elapsed_ms": 791,
+      "result": {
+        "count": 14,
+        "names": [
+          "mechanics",
+          "league_of_legends",
+          "cartoonize",
+          "colorized",
+          "barbie_doll"
+        ]
+      }
+    },
+    {
+      "check": "style_list.img2img",
+      "expect": "ok",
+      "ok": true,
+      "elapsed_ms": 793,
+      "result": {
+        "count": 50,
+        "sample": [
+          "pawpatrol",
+          "disney",
+          "deadpool",
+          "cartoon",
+          "anime"
+        ]
+      }
+    },
+    {
+      "check": "transfer.config",
+      "expect": "ok",
+      "ok": true,
+      "elapsed_ms": 1225,
+      "result": {
+        "styles": 50,
+        "unique_upstreams": [
+          "https://hqhfk2z3uedo3d-8040.proxy.runpod.net/sdapi/v1/img2img",
+          "https://hqhfk2z3uedo3d-8041.proxy.runpod.net/sdapi/v1/img2img",
+          "https://hqhfk2z3uedo3d-8042.proxy.runpod.net/sdapi/v1/img2img"
+        ],
+        "const_img2img": [
+          "https://hqhfk2z3uedo3d-8040.proxy.runpod.net/sdapi/v1/img2img",
+          "https://hqhfk2z3uedo3d-8041.proxy.runpod.net/sdapi/v1/img2img",
+          "https://hqhfk2z3uedo3d-8042.proxy.runpod.net/sdapi/v1/img2img"
+        ]
+      }
+    },
+    {
+      "check": "txt2img",
+      "expect": "upstream_dead",
+      "ok": true,
+      "elapsed_ms": 1863,
+      "error": "upstream returned empty content: {'msg': 'Finish', 'content': {'image_url': None}}"
+    },
+    {
+      "check": "img2img(transfer)",
+      "expect": "upstream_dead",
+      "ok": true,
+      "elapsed_ms": 3210,
+      "error": "upstream 202: Error!"
+    }
+  ],
+  "upstream_matrix": [
+    {
+      "target": "genimage-8005",
+      "url": "http://69.10.54.174:8005/openapi.json",
+      "http": 200,
+      "bytes": 33738,
+      "elapsed_ms": 1220
+    },
+    {
+      "target": "app-proxglobal",
+      "url": "https://ai-art.proxglobal.co/",
+      "http": 404,
+      "bytes": 27150,
+      "elapsed_ms": 1701
+    },
+    {
+      "target": "app-static",
+      "url": "https://ai-art.proxglobal.co/app-data/video-data.json",
+      "http": null,
+      "error": "SSLError",
+      "elapsed_ms": 1947
+    },
+    {
+      "target": "start-procyoni",
+      "url": "http://art12.procyoni.com/",
+      "http": 200,
+      "bytes": 114,
+      "elapsed_ms": 881
+    },
+    {
+      "target": "ob-5000",
+      "url": "http://199.231.188.59:5000/now/v1/",
+      "http": 200,
+      "bytes": 66,
+      "elapsed_ms": 1792
+    },
+    {
+      "target": "yearbook-8006",
+      "url": "http://69.10.54.174:8006/",
+      "http": 503,
+      "bytes": 0,
+      "elapsed_ms": 3009
+    },
+    {
+      "target": "minio-9000",
+      "url": "http://69.10.54.174:9000/data/wedding_template.mp4",
+      "http": 503,
+      "bytes": 0,
+      "elapsed_ms": 2065
+    },
+    {
+      "target": "chatgpt-proxglobal",
+      "url": "https://chatgpt.proxglobal.co/",
+      "http": 404,
+      "bytes": 27150,
+      "elapsed_ms": 1461
+    }
+  ],
+  "failures": []
+}

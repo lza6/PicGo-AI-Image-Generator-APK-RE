@@ -1,0 +1,20 @@
+# 原始 APK 与反编译产物（体积大，不入仓）
+picgo208.apk
+apktool_out/
+jadx_out/
+original/
+*.log
+
+# 敏感：Firebase Remote Config 原始响应（含 294 个第三方 OpenAI key）
+rc.json
+.token
+.env
+*.key
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# 演示截图之外的临时文件
+evidence/_tmp_*

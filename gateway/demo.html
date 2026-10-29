@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PicGo v2.0.8 · 协议网关 Demo</title>
+<style>
+  :root { --bg:#0d1117; --panel:#161b22; --line:#30363d; --fg:#e6edf3; --dim:#8b949e;
+          --ok:#3fb950; --warn:#d29922; --bad:#f85149; --acc:#58a6ff; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg);
+         font:14px/1.6 -apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei",sans-serif; }
+  header { padding:22px 26px 14px; border-bottom:1px solid var(--line); }
+  h1 { margin:0 0 6px; font-size:19px; letter-spacing:.2px; }
+  h1 small { color:var(--dim); font-weight:400; font-size:13px; margin-left:8px; }
+  .sub { color:var(--dim); font-size:13px; }
+  main { display:grid; grid-template-columns:1fr 1fr; gap:16px; padding:18px 26px 40px; }
+  @media (max-width:1000px){ main { grid-template-columns:1fr; } }
+  section { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px; }
+  section h2 { margin:0 0 12px; font-size:15px; display:flex; align-items:center; gap:8px; }
+  table { width:100%; border-collapse:collapse; font-size:12.5px; }
+  th,td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--dim); font-weight:500; }
+  .badge { display:inline-block; padding:1px 7px; border-radius:20px; font-size:11px; border:1px solid; }
+  .b-ok { color:var(--ok); border-color:#1f6f34; background:#0f2a17; }
+  .b-warn { color:var(--warn); border-color:#7a5a13; background:#2a2110; }
+  .b-bad { color:var(--bad); border-color:#7d2620; background:#2b1210; }
+  .b-dim { color:var(--dim); border-color:var(--line); background:#12171d; }
+  label { display:block; color:var(--dim); font-size:12px; margin:10px 0 4px; }
+  input,select,textarea { width:100%; background:#0b0f14; color:var(--fg); border:1px solid var(--line);
+                          border-radius:6px; padding:7px 9px; font:inherit; }
+  textarea { resize:vertical; min-height:64px; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  button { margin-top:12px; background:var(--acc); color:#04121f; border:0; border-radius:6px;
+           padding:9px 16px; font-weight:600; cursor:pointer; }
+  button:disabled { background:#233b57; color:#7f8b98; cursor:not-allowed; }
+  pre { background:#0b0f14; border:1px solid var(--line); border-radius:6px; padding:10px;
+        overflow:auto; max-height:230px; font-size:12px; margin:10px 0 0; }
+  .meta { color:var(--dim); font-size:12px; }
+  .styles { display:flex; flex-wrap:wrap; gap:6px; max-height:150px; overflow:auto; margin-top:8px; }
+  .chip { border:1px solid var(--line); border-radius:20px; padding:2px 9px; font-size:11.5px; color:var(--dim);
+          cursor:pointer; }
+  .chip:hover { border-color:var(--acc); color:var(--fg); }
+  #out img, #out video { max-width:100%; border-radius:8px; margin-top:10px; border:1px solid var(--line); }
+  .err { color:var(--bad); }
+  .note { border-left:3px solid var(--warn); padding-left:10px; color:var(--dim); font-size:12.5px; margin:10px 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>PicGo AI Image Generator v2.0.8 <small>协议网关 · 本地演示</small></h1>
+  <div class="sub">com.aiart.aigenerator.aifilter.aieditor / com.prox.global.aiart · 上游 <code>69.10.54.174:8005</code></div>
+</header>
+
+<main>
+  <section>
+    <h2>能力矩阵 <span class="meta" id="matrixAt"></span></h2>
+    <table>
+      <thead><tr><th>能力</th><th>上游路径</th><th>实测状态</th></tr></thead>
+      <tbody id="caps"><tr><td colspan="3" class="meta">加载中…</td></tr></tbody>
+    </table>
+    <div class="note">本页所有数据都由网关实时打到上游取得，生成失败就显示真实错误，不会伪造图片。</div>
+
+    <h2 style="margin-top:18px">上游存活探测</h2>
+    <table>
+      <thead><tr><th>目标</th><th>HTTP</th><th>字节</th><th>耗时</th></tr></thead>
+      <tbody id="matrix"><tr><td colspan="4" class="meta">点击下方按钮探测</td></tr></tbody>
+    </table>
+    <button id="probeBtn">探测上游存活</button>
+  </section>
+
+  <section>
+    <h2>文生图 / 图生图 试跑</h2>
+    <label>Prompt</label>
+    <textarea id="prompt">a red apple on a wooden table, soft studio light</textarea>
+    <div class="row">
+      <div>
+        <label>文生图风格（<span id="t2iCount">0</span> 个，实时拉取）</label>
+        <select id="t2iStyle"><option value="">（不带风格）</option></select>
+      </div>
+      <div>
+        <label>图生图风格（<span id="i2iCount">0</span> 个）</label>
+        <select id="i2iStyle"><option value="anime">anime</option></select>
+      </div>
+    </div>
+    <div class="row">
+      <div><label>宽 × 高</label><input id="size" value="512x512" /></div>
+      <div><label>上传图片（图生图用）</label><input id="file" type="file" accept="image/*" /></div>
+    </div>
+    <button id="t2iBtn">跑文生图</button>
+    <button id="i2iBtn" style="background:#8b949e;color:#0d1117">跑图生图</button>
+    <div id="out"></div>
+  </section>
+
+  <section style="grid-column:1/-1">
+    <h2>实时风格清单（来自 <code>/picgo/config</code>）</h2>
+    <div class="styles" id="styleChips"></div>
+  </section>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+async function api(path, opts) {
+  const res = await fetch(path, opts);
+  let body;
+  try { body = await res.json(); } catch { body = { raw: await res.text() }; }
+  return { status: res.status, body };
+}
+
+function badge(status) {
+  const map = {
+    live: ['b-ok', '实时可用'], upstream_dead: ['b-bad', '上游已死'],
+    template_only: ['b-warn', '仅模板占位'], live_but_unchecked: ['b-warn', '可签但服务端不校验'],
+  };
+  const [cls, text] = map[status] || ['b-dim', status];
+  return `<span class="badge ${cls}">${text}</span>`;
+}
+
+async function loadCaps() {
+  const { body } = await api('/v1/models');
+  $('caps').innerHTML = body.data.map(m => `<tr>
+      <td><code>${m.id}</code><br><span class="meta">${m.metadata.kind}</span></td>
+      <td class="meta">${m.metadata.upstream}</td>
+      <td>${badge(m.metadata.status)}</td></tr>`).join('');
+  $('matrixAt').textContent = '· 拉取于 ' + new Date().toLocaleTimeString();
+}
+
+async function loadStyles() {
+  const t2i = await api('/picgo/styles?kind=txt2img');
+  const names = (t2i.body && t2i.body.names) || [];
+  $('t2iStyle').innerHTML = '<option value="">（不带风格）</option>' +
+      names.map(n => `<option value="${n}">${n}</option>`).join('');
+  $('t2iCount').textContent = names.length;
+
+  const i2i = await api('/picgo/styles?kind=img2img');
+  const list = (i2i.body && i2i.body.names) || [];
+  $('i2iStyle').innerHTML = list.map(n => `<option value="${n}">${n}</option>`).join('');
+  $('i2iCount').textContent = list.length;
+
+  const cfg = await api('/picgo/config');
+  const styles = (cfg.body && cfg.body.STYLES) || {};
+  $('styleChips').innerHTML = Object.keys(styles).map(k =>
+      `<span class="chip" title="${(styles[k].prompt || '').slice(0, 160)}">${k}</span>`).join('')
+      || '<span class="meta">配置拉取失败</span>';
+}
+
+async function probe() {
+  $('probeBtn').disabled = true;
+  $('matrix').innerHTML = '<tr><td colspan="4" class="meta">探测中…</td></tr>';
+  const { body } = await api('/upstream/matrix');
+  $('matrix').innerHTML = body.rows.map(r => `<tr>
+      <td><code>${r.target}</code><br><span class="meta">${r.url}</span></td>
+      <td>${r.http ?? 'ERR'}</td><td>${r.bytes ?? '-'}</td><td>${r.elapsed_ms}ms</td></tr>`).join('');
+  $('probeBtn').disabled = false;
+}
+
+function showResult(label, status, body) {
+  const isErr = status >= 400;
+  const url = body && body.data && body.data[0] && body.data[0].url;
+  const imageUrl = url || (body && body.content && body.content.image_url);
+  $('out').innerHTML = `<pre class="${isErr ? 'err' : ''}">[${label}] HTTP ${status}\n` +
+      JSON.stringify(body, null, 2).replace(/</g, '&lt;') + '</pre>' +
+      (imageUrl ? `<a href="${imageUrl}" target="_blank"><img src="${imageUrl}" alt="result"></a>` : '');
+}
+
+$('t2iBtn').addEventListener('click', async () => {
+  $('t2iBtn').disabled = true;
+  const payload = { prompt: $('prompt').value, style: $('t2iStyle').value, size: $('size').value };
+  const { status, body } = await api('/v1/images/generations', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+  });
+  showResult('txt2img', status, body);
+  $('t2iBtn').disabled = false;
+});
+
+$('i2iBtn').addEventListener('click', async () => {
+  const f = $('file').files[0];
+  if (!f) { $('out').innerHTML = '<pre class="err">先选一张图片</pre>'; return; }
+  $('i2iBtn').disabled = true;
+  const fd = new FormData();
+  fd.append('image', f);
+  fd.append('prompt', $('prompt').value);
+  fd.append('style', $('i2iStyle').value || 'anime');
+  const { status, body } = await api('/v1/images/edits', { method: 'POST', body: fd });
+  showResult('img2img', status, body);
+  $('i2iBtn').disabled = false;
+});
+
+$('probeBtn').addEventListener('click', probe);
+
+loadCaps();
+loadStyles();
+</script>
+</body>
+</html>
